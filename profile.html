@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – Money Mission</title>
+  <link rel="stylesheet" href="../css/global.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="money-bg"></div>
+<div id="toast-container"></div>
+
+<!-- Layout injected by JS -->
+<div class="app-layout">
+  <!-- sidebar + topbar rendered by layout.js -->
+
+  <main class="main-content" id="mainContent">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="welcomeTitle">Good Morning 👋</div>
+        <div class="page-sub">Here's your financial snapshot for today.</div>
+      </div>
+      <a href="goals.html" class="btn btn-gold btn-sm">+ Add Goal</a>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stat-grid" id="statGrid">
+      <div class="glass stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon gold">💰</div>
+          <span class="badge badge-green">↑ 12%</span>
+        </div>
+        <div class="stat-card-label">Total Savings</div>
+        <div class="stat-card-value" id="totalSavings">₹0</div>
+        <div class="stat-card-change up">▲ ₹2,400 this month</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon green">🎯</div>
+          <span class="badge badge-gold">Active</span>
+        </div>
+        <div class="stat-card-label">Goal Progress</div>
+        <div class="stat-card-value" id="goalProgress">0%</div>
+        <div class="progress-wrap mt-8"><div class="progress-fill green" id="goalBar" style="width:0%"></div></div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon blue">📅</div>
+          <span class="badge badge-blue">3 Upcoming</span>
+        </div>
+        <div class="stat-card-label">Reminders</div>
+        <div class="stat-card-value">3 Due</div>
+        <div class="stat-card-change" style="color:var(--blue)">Next: Rent – Tomorrow</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon red">📊</div>
+          <span class="badge badge-red">↓ 5%</span>
+        </div>
+        <div class="stat-card-label">Monthly Spend</div>
+        <div class="stat-card-value">₹32,500</div>
+        <div class="stat-card-change down">▼ ₹1,800 vs last month</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-icon gold">⭐</div>
+          <span class="badge badge-gold">Excellent</span>
+        </div>
+        <div class="stat-card-label">Health Score</div>
+        <div class="stat-card-value text-gold">87/100</div>
+        <div class="stat-card-change up">▲ 4 pts this week</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="chart-grid">
+      <!-- Savings chart -->
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Savings Progress</div>
+            <div class="chart-subtitle">Monthly savings over the year</div>
+          </div>
+          <select class="form-control" style="width:auto;padding:6px 12px;font-size:13px;" id="chartYear">
+            <option>2025</option><option>2024</option>
+          </select>
+        </div>
+        <div class="chart-area" style="height:240px;">
+          <canvas id="savingsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Health Score Ring -->
+      <div class="glass chart-card health-score-wrap">
+        <div class="chart-title" style="margin-bottom:20px;text-align:center;">Financial Health</div>
+        <div class="health-ring">
+          <svg viewBox="0 0 120 120" width="140" height="140">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#d4af37"/>
+                <stop offset="100%" stop-color="#f0cc5a"/>
+              </linearGradient>
+            </defs>
+            <circle class="health-ring-bg"   cx="60" cy="60" r="56"/>
+            <circle class="health-ring-fill" cx="60" cy="60" r="56" id="healthArc"/>
+          </svg>
+          <div class="health-ring-text">
+            <div class="health-score-val" id="healthVal">87</div>
+            <div class="health-score-label">/ 100</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:12px;">
+          <div class="badge badge-gold">Excellent</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:8px;">Better than 91% of users</div>
+        </div>
+        <div style="width:100%;margin-top:20px;display:flex;flex-direction:column;gap:10px;">
+          <div class="flex items-center justify-between text-sm text-secondary"><span>Savings Rate</span><span class="text-gold font-bold">34%</span></div>
+          <div class="progress-wrap"><div class="progress-fill" style="width:34%"></div></div>
+          <div class="flex items-center justify-between text-sm text-secondary"><span>Goal Completion</span><span class="text-green font-bold">71%</span></div>
+          <div class="progress-wrap"><div class="progress-fill green" style="width:71%"></div></div>
+          <div class="flex items-center justify-between text-sm text-secondary"><span>Reminder Streak</span><span class="text-gold font-bold">18 days</span></div>
+          <div class="progress-wrap"><div class="progress-fill blue" style="width:60%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spending Chart + Recent Activity -->
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Spending Analysis</div>
+            <div class="chart-subtitle">Category breakdown – June 2025</div>
+          </div>
+        </div>
+        <div class="chart-area" style="height:220px;">
+          <canvas id="spendingChart"></canvas>
+        </div>
+      </div>
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Goal Completion</div>
+          <div class="chart-subtitle" style="font-size:12px;color:var(--text-muted)">Active goals overview</div>
+        </div>
+        <div class="chart-area" style="height:220px;">
+          <canvas id="goalChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="glass chart-card" style="margin-bottom:24px;">
+      <div class="chart-header">
+        <div class="chart-title">Recent Activity</div>
+        <a href="reminders.html" class="btn btn-ghost btn-sm">View All</a>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon gold">💰</div>
+          <div class="activity-text">
+            <div class="activity-title">Savings deposited</div>
+            <div class="activity-time">Today, 9:30 AM</div>
+          </div>
+          <div class="activity-amount text-green">+₹5,000</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(255,90,90,0.15)">🛒</div>
+          <div class="activity-text">
+            <div class="activity-title">Grocery Shopping</div>
+            <div class="activity-time">Yesterday, 6:45 PM</div>
+          </div>
+          <div class="activity-amount text-red">-₹2,340</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(78,168,222,0.15)">🏦</div>
+          <div class="activity-text">
+            <div class="activity-title">SIP Investment – Nifty 50</div>
+            <div class="activity-time">June 1, 8:00 AM</div>
+          </div>
+          <div class="activity-amount text-blue">₹3,000</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:rgba(255,90,90,0.15)">🏠</div>
+          <div class="activity-text">
+            <div class="activity-title">Rent Payment</div>
+            <div class="activity-time">June 1, 10:00 AM</div>
+          </div>
+          <div class="activity-amount text-red">-₹12,000</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon gold">🎯</div>
+          <div class="activity-text">
+            <div class="activity-title">Vacation Goal updated</div>
+            <div class="activity-time">May 31</div>
+          </div>
+          <div class="activity-amount text-gold">+₹1,500</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../js/global.js"></script>
+<script src="../js/layout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderLayout('dashboard.html', 'Dashboard');
+  initMoneyBackground();
+  initSidebar();
+
+  // Welcome greeting
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+  const user = getUser();
+  document.getElementById('welcomeTitle').textContent = greeting + ', ' + user.name.split(' ')[0] + ' 👋';
+
+  // Count-up stats
+  const goals = store.get('goals', []);
+  const savings = store.get('savings_total', 84200);
+  const totalEl = document.getElementById('totalSavings');
+  countUp(totalEl, savings, 1400, '₹');
+
+  // Goal average progress
+  let avgPct = 71;
+  if (goals.length) {
+    avgPct = Math.round(goals.reduce((s, g) => s + Math.min((+g.current / +g.target) * 100, 100), 0) / goals.length);
+  }
+  const goalPctEl = document.getElementById('goalProgress');
+  countUp(goalPctEl, avgPct, 1200, '', '%');
+  animateProgress(document.getElementById('goalBar'), avgPct);
+
+  // Health score ring
+  setTimeout(() => {
+    const arc = document.getElementById('healthArc');
+    const score = 87;
+    const circumference = 2 * Math.PI * 56;
+    arc.style.strokeDasharray = circumference;
+    arc.style.strokeDashoffset = circumference * (1 - score / 100);
+    arc.style.transition = 'stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1)';
+  }, 300);
+
+  // ---- Charts ----
+  const goldGrad = ctx => {
+    const g = ctx.createLinearGradient(0, 0, 0, 260);
+    g.addColorStop(0,   'rgba(212,175,55,0.35)');
+    g.addColorStop(1,   'rgba(212,175,55,0)');
+    return g;
+  };
+
+  // Savings Chart
+  const sCtx = document.getElementById('savingsChart').getContext('2d');
+  new Chart(sCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets: [{
+        label: 'Savings (₹)',
+        data: [8200, 10500, 7100, 12800, 11400, 14200, 9800, 15600, 13200, 17400, 16100, 18900],
+        fill: true,
+        backgroundColor: ctx => goldGrad(ctx.chart.ctx),
+        borderColor: '#d4af37',
+        borderWidth: 2,
+        pointBackgroundColor: '#d4af37',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.45,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: 'rgba(13,19,32,0.95)',
+        borderColor: 'rgba(212,175,55,0.3)',
+        borderWidth: 1,
+        titleColor: '#d4af37',
+        bodyColor: '#9aa0b4',
+        callbacks: { label: ctx => ' ₹' + ctx.parsed.y.toLocaleString('en-IN') }
+      }},
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#9aa0b4', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#9aa0b4', font: { size: 11 }, callback: v => '₹' + (v/1000) + 'k' } }
+      }
+    }
+  });
+
+  // Spending Doughnut
+  const dCtx = document.getElementById('spendingChart').getContext('2d');
+  new Chart(dCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Housing','Food','Transport','Shopping','Health','Other'],
+      datasets: [{
+        data: [12000, 6800, 3200, 4500, 2100, 3900],
+        backgroundColor: ['#d4af37','#22d97a','#4ea8de','#f0cc5a','#ff8c8c','#a78bfa'],
+        borderColor: '#0d1320',
+        borderWidth: 3,
+        hoverBorderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'right', labels: { color: '#9aa0b4', font: { size: 11 }, padding: 14, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: 'rgba(13,19,32,0.95)', borderColor: 'rgba(212,175,55,0.3)', borderWidth: 1,
+          titleColor: '#d4af37', bodyColor: '#9aa0b4',
+          callbacks: { label: ctx => ' ₹' + ctx.parsed.toLocaleString('en-IN') }
+        }
+      }
+    }
+  });
+
+  // Goal Bar Chart
+  const gCtx = document.getElementById('goalChart').getContext('2d');
+  new Chart(gCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Emergency', 'Vacation', 'Car', 'Education', 'Wedding'],
+      datasets: [{
+        label: 'Progress %',
+        data: [90, 55, 30, 72, 18],
+        backgroundColor: ['#22d97a','#d4af37','#4ea8de','#f0cc5a','#ff8c8c'],
+        borderRadius: 6,
+        barThickness: 22,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: 'rgba(13,19,32,0.95)', borderColor: 'rgba(212,175,55,0.3)', borderWidth: 1,
+        titleColor: '#d4af37', bodyColor: '#9aa0b4',
+        callbacks: { label: ctx => ' ' + ctx.parsed.y + '% complete' }
+      }},
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9aa0b4', font: { size: 11 } } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#9aa0b4', font: { size: 11 }, callback: v => v + '%' }, max: 100 }
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
