@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planner – Money Mission</title>
+  <link rel="stylesheet" href="global.css"/>
+  <link rel="stylesheet" href="dashboard.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="money-bg"></div>
+<div id="toast-container"></div>
+
+<div class="app-layout">
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="plannerTitle">📅 Daily Planner</div>
+        <div class="page-sub" id="plannerSub">Plan and track today's financial tasks.</div>
+      </div>
+      <button class="btn btn-gold" onclick="openModal('addTaskModal')">+ Add Task</button>
+    </div>
+
+    <!-- Period tabs -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
+      <button class="btn btn-sm" id="tab-daily"   onclick="setMode('daily',this)">📅 Daily</button>
+      <button class="btn btn-sm" id="tab-weekly"  onclick="setMode('weekly',this)">📆 Weekly</button>
+      <button class="btn btn-sm" id="tab-monthly" onclick="setMode('monthly',this)">🗓️ Monthly</button>
+      <button class="btn btn-sm" id="tab-yearly"  onclick="setMode('yearly',this)">📊 Yearly</button>
+    </div>
+
+    <!-- Summary row -->
+    <div class="stat-grid" style="margin-bottom:24px;" id="plannerStats">
+      <div class="glass stat-card">
+        <div class="stat-card-icon gold" style="margin-bottom:10px;">📋</div>
+        <div class="stat-card-label">Total Tasks</div>
+        <div class="stat-card-value" id="psTotalTasks">0</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-icon green" style="margin-bottom:10px;">✅</div>
+        <div class="stat-card-label">Completed</div>
+        <div class="stat-card-value text-green" id="psCompleted">0</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-icon blue" style="margin-bottom:10px;">⏳</div>
+        <div class="stat-card-label">Pending</div>
+        <div class="stat-card-value" id="psPending">0</div>
+      </div>
+      <div class="glass stat-card">
+        <div class="stat-card-icon gold" style="margin-bottom:10px;">💰</div>
+        <div class="stat-card-label">Budget Assigned</div>
+        <div class="stat-card-value" id="psBudget">₹0</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <!-- Task List -->
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div class="chart-title" id="taskListTitle">Today's Tasks</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" onclick="filterTasks('all')">All</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterTasks('pending')">Pending</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterTasks('done')">Done</button>
+          </div>
+        </div>
+        <div id="taskList" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="taskEmpty" style="display:none;text-align:center;padding:30px 0;color:var(--text-muted);">
+          No tasks yet. Add one above!
+        </div>
+      </div>
+
+      <!-- Mini Budget Chart -->
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Budget Overview</div>
+        </div>
+        <div style="height:200px;"><canvas id="plannerChart"></canvas></div>
+        <!-- Budget input -->
+        <div style="margin-top:20px;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text-secondary);">Quick Budget Entry</div>
+          <div style="display:flex;gap:8px;">
+            <input class="form-control" id="budgetInput" type="number" placeholder="₹ Amount" style="flex:1;"/>
+            <select class="form-control" id="budgetCat" style="flex:1;">
+              <option value="Food">🍱 Food</option>
+              <option value="Transport">🚗 Transport</option>
+              <option value="Shopping">🛍️ Shopping</option>
+              <option value="Bills">📄 Bills</option>
+              <option value="Other">📦 Other</option>
+            </select>
+            <button class="btn btn-gold btn-sm" onclick="addBudgetEntry()">Add</button>
+          </div>
+          <div id="budgetEntries" style="margin-top:14px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals linked to this period -->
+    <div class="glass chart-card">
+      <div class="chart-header">
+        <div class="chart-title" id="linkedGoalsTitle">Linked Goals</div>
+        <a href="goals.html" class="btn btn-ghost btn-sm">Manage →</a>
+      </div>
+      <div id="linkedGoals"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="addTaskModal">
+  <div class="glass modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Task</div>
+      <button class="modal-close" onclick="closeModal('addTaskModal')">×</button>
+    </div>
+    <form id="taskForm" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="form-group">
+        <label class="form-label">Task Name</label>
+        <input class="form-control" id="taskName" placeholder="e.g. Transfer to savings account"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount (₹) — optional</label>
+        <input class="form-control" id="taskAmount" type="number" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-control" id="taskCat">
+          <option value="Savings">💰 Savings</option>
+          <option value="Expense">💸 Expense</option>
+          <option value="Investment">📈 Investment</option>
+          <option value="Review">📋 Review</option>
+          <option value="Payment">💳 Payment</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note</label>
+        <input class="form-control" id="taskNote" placeholder="Optional note…"/>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;padding:13px;">Add Task</button>
+    </form>
+  </div>
+</div>
+
+<script src="global.js"></script>
+<script src="layout.js"></script>
+<script>
+const MODE_INFO = {
+  daily:   { title:'📅 Daily Planner',   sub:'Plan and track today\'s financial tasks.',       listTitle:'Today\'s Tasks',       linked:'Daily Goals',   key:'tasks_daily'   },
+  weekly:  { title:'📆 Weekly Planner',  sub:'Manage your financial tasks for this week.',     listTitle:'This Week\'s Tasks',   linked:'Weekly Goals',  key:'tasks_weekly'  },
+  monthly: { title:'🗓️ Monthly Planner', sub:'Organise your entire month\'s financial plan.',  listTitle:'This Month\'s Tasks',  linked:'Monthly Goals', key:'tasks_monthly' },
+  yearly:  { title:'📊 Yearly Planner',  sub:'Set the financial roadmap for the full year.',   listTitle:'This Year\'s Tasks',   linked:'Yearly Goals',  key:'tasks_yearly'  },
+};
+let currentMode = 'daily';
+let taskFilter  = 'all';
+let planChart   = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Detect mode from URL hash or default
+  const hash = window.location.hash.replace('#','') || 'daily';
+  renderLayout('planner.html', 'Planner');
+  initMoneyBackground();
+  initSidebar();
+  setMode(hash, document.getElementById('tab-' + hash));
+});
+
+function setMode(mode, btn) {
+  currentMode = mode;
+  const info  = MODE_INFO[mode];
+  document.getElementById('plannerTitle').textContent   = info.title;
+  document.getElementById('plannerSub').textContent     = info.sub;
+  document.getElementById('taskListTitle').textContent  = info.listTitle;
+  document.getElementById('linkedGoalsTitle').textContent = info.linked;
+
+  // Tab styles
+  ['daily','weekly','monthly','yearly'].forEach(m => {
+    const t = document.getElementById('tab-' + m);
+    if (t) t.className = m === mode ? 'btn btn-gold btn-sm' : 'btn btn-ghost btn-sm';
+  });
+
+  renderTasks();
+  renderBudgetEntries();
+  renderLinkedGoals();
+  renderPlannerChart();
+}
+
+// ---- Tasks ----
+function getTasks() {
+  return store.get(MODE_INFO[currentMode].key, defaultTasks());
+}
+
+function defaultTasks() {
+  return [
+    { id:'1', name:'Transfer ₹5,000 to savings',    amount:5000,  cat:'Savings',    note:'Monthly SIP',     done:false },
+    { id:'2', name:'Pay electricity bill',           amount:1200,  cat:'Payment',    note:'Before 10th',     done:false },
+    { id:'3', name:'Review monthly budget',          amount:0,     cat:'Review',     note:'',                done:true  },
+    { id:'4', name:'Buy groceries',                  amount:2500,  cat:'Expense',    note:'Weekly groceries',done:false },
+  ];
+}
+
+const catIconMap = { Savings:'💰', Expense:'💸', Investment:'📈', Review:'📋', Payment:'💳' };
+
+function renderTasks() {
+  const tasks   = getTasks();
+  const list    = document.getElementById('taskList');
+  const empty   = document.getElementById('taskEmpty');
+  const filtered = taskFilter === 'all' ? tasks : tasks.filter(t => taskFilter === 'done' ? t.done : !t.done);
+
+  const total     = tasks.length;
+  const completed = tasks.filter(t => t.done).length;
+  const budget    = tasks.reduce((s, t) => s + (+t.amount || 0), 0);
+
+  document.getElementById('psTotalTasks').textContent = total;
+  document.getElementById('psCompleted').textContent  = completed;
+  document.getElementById('psPending').textContent    = total - completed;
+  document.getElementById('psBudget').textContent     = '₹' + budget.toLocaleString('en-IN');
+
+  if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = filtered.map(t => `
+    <div class="activity-item" style="cursor:default;${t.done ? 'opacity:0.6;' : ''}">
+      <div class="activity-icon ${t.done ? 'green' : 'gold'}" style="font-size:18px;">${t.done ? '✅' : catIconMap[t.cat] || '📋'}</div>
+      <div class="activity-text" style="${t.done ? 'text-decoration:line-through;' : ''}">
+        <div class="activity-title">${t.name}</div>
+        <div class="activity-time">${t.cat}${t.note ? ' · ' + t.note : ''}${t.amount ? ' · ₹' + (+t.amount).toLocaleString('en-IN') : ''}</div>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
+        <button class="btn btn-sm ${t.done ? 'btn-ghost' : 'btn-green'}" style="padding:5px 10px;font-size:12px;" onclick="toggleTask('${t.id}')">
+          ${t.done ? '↩' : '✓'}
+        </button>
+        <button class="btn btn-danger btn-sm btn-icon" style="width:30px;height:30px;" onclick="deleteTask('${t.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterTasks(f) {
+  taskFilter = f;
+  renderTasks();
+}
+
+function toggleTask(id) {
+  const tasks = getTasks();
+  const t = tasks.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  store.set(MODE_INFO[currentMode].key, tasks);
+  renderTasks();
+  renderPlannerChart();
+  if (t && t.done) showToast('Task completed! ✅', 'success', 2000);
+}
+
+function deleteTask(id) {
+  store.set(MODE_INFO[currentMode].key, getTasks().filter(t => t.id !== id));
+  renderTasks();
+  renderPlannerChart();
+}
+
+document.getElementById('taskForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) return showToast('Please enter a task name.', 'error');
+  const tasks = getTasks();
+  tasks.push({
+    id: Date.now().toString(),
+    name,
+    amount: +document.getElementById('taskAmount').value || 0,
+    cat:    document.getElementById('taskCat').value,
+    note:   document.getElementById('taskNote').value.trim(),
+    done:   false,
+  });
+  store.set(MODE_INFO[currentMode].key, tasks);
+  closeModal('addTaskModal');
+  document.getElementById('taskForm').reset();
+  renderTasks();
+  renderPlannerChart();
+  showToast('Task added! 📋', 'success');
+});
+
+// ---- Budget Entries ----
+function getBudgetEntries() {
+  return store.get('budget_' + currentMode, []);
+}
+
+function addBudgetEntry() {
+  const amt = +document.getElementById('budgetInput').value;
+  if (!amt) return showToast('Enter a valid amount.', 'error');
+  const cat = document.getElementById('budgetCat').value;
+  const entries = getBudgetEntries();
+  entries.push({ id: Date.now().toString(), amount: amt, cat, date: new Date().toLocaleDateString('en-IN') });
+  store.set('budget_' + currentMode, entries);
+  document.getElementById('budgetInput').value = '';
+  renderBudgetEntries();
+  renderPlannerChart();
+  showToast('Budget entry added! 💸', 'success');
+}
+
+function renderBudgetEntries() {
+  const entries = getBudgetEntries();
+  const el = document.getElementById('budgetEntries');
+  if (!entries.length) { el.innerHTML = '<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px;">No budget entries yet.</div>'; return; }
+  el.innerHTML = entries.slice(-5).reverse().map(e => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;font-size:13px;">
+      <span>${e.cat}</span>
+      <span style="color:var(--red);font-weight:600;">-₹${e.amount.toLocaleString('en-IN')}</span>
+      <button onclick="deleteBudget('${e.id}')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">×</button>
+    </div>
+  `).join('');
+}
+
+function deleteBudget(id) {
+  store.set('budget_' + currentMode, getBudgetEntries().filter(e => e.id !== id));
+  renderBudgetEntries();
+  renderPlannerChart();
+}
+
+// ---- Linked Goals ----
+function renderLinkedGoals() {
+  const goals = (store.get('goals') || []).filter(g => g.category === currentMode);
+  const el    = document.getElementById('linkedGoals');
+  if (!goals.length) {
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:14px;">
+      No ${currentMode} goals yet. <a href="goals.html" style="color:var(--gold);">Create one →</a>
+    </div>`;
+    return;
+  }
+  el.innerHTML = goals.map(g => {
+    const pct = Math.min(Math.round((+g.current / +g.target) * 100), 100);
+    const fc  = pct >= 80 ? 'green' : pct >= 40 ? '' : 'red';
+    return `
+      <div style="padding:14px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-weight:600;font-size:14px;">${g.name}</span>
+          <span style="font-family:var(--font-display);font-weight:700;color:var(--gold);">${pct}%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill ${fc}" style="width:${pct}%"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--text-muted);">
+          <span>₹${(+g.current).toLocaleString('en-IN')} saved</span>
+          <span>Target: ₹${(+g.target).toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ---- Planner Chart ----
+function renderPlannerChart() {
+  const tasks = getTasks();
+  const done  = tasks.filter(t => t.done).length;
+  const pend  = tasks.length - done;
+
+  const budgets = getBudgetEntries();
+  const catTotals = {};
+  budgets.forEach(e => { catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amount; });
+
+  const ctx = document.getElementById('plannerChart').getContext('2d');
+  if (planChart) planChart.destroy();
+
+  if (Object.keys(catTotals).length) {
+    planChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(catTotals),
+        datasets: [{ data: Object.values(catTotals),
+          backgroundColor:['#d4af37','#22d97a','#4ea8de','#f0cc5a','#ff8c8c'],
+          borderColor:'#0d1320', borderWidth:3 }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false, cutout:'60%',
+        plugins: {
+          legend: { position:'right', labels:{ color:'#9aa0b4', font:{size:11}, padding:10, boxWidth:12 } },
+          tooltip: { backgroundColor:'rgba(13,19,32,0.95)', borderColor:'rgba(212,175,55,0.3)', borderWidth:1,
+            callbacks:{ label: ctx => ' ₹' + ctx.parsed.toLocaleString('en-IN') }
+          }
+        }
+      }
+    });
+  } else {
+    planChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Completed','Pending'],
+        datasets: [{ data: [done || 0, pend || 1],
+          backgroundColor:['#22d97a','rgba(255,255,255,0.08)'],
+          borderColor:'#0d1320', borderWidth:3 }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false, cutout:'65%',
+        plugins: {
+          legend:{ labels:{ color:'#9aa0b4', font:{size:12}, padding:14, boxWidth:12 } },
+          tooltip:{ backgroundColor:'rgba(13,19,32,0.95)', borderColor:'rgba(212,175,55,0.3)', borderWidth:1 }
+        }
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>
