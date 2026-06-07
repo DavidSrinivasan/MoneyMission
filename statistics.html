@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statistics – Money Mission</title>
+  <link rel="stylesheet" href="global.css"/>
+  <link rel="stylesheet" href="dashboard.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="money-bg"></div>
+<div id="toast-container"></div>
+
+<div class="app-layout">
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Stats Statistics</div>
+        <div class="page-sub">Deep-dive analytics on your financial life.</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <select class="form-control" id="statPeriod" style="width:auto;padding:8px 14px;font-size:13px;" onchange="updateCharts()">
+          <option value="6">Last 6 Months</option>
+          <option value="12" selected>Last 12 Months</option>
+          <option value="3">Last 3 Months</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Big stat cards -->
+    <div class="stats-overview-grid">
+      <div class="glass stat-big-card">
+        <div class="stat-big-icon">Savings</div>
+        <div class="stat-big-val" id="sBigSavings">₹0</div>
+        <div class="stat-big-label">Total Savings (Year)</div>
+        <div class="stat-card-change up" style="justify-content:center;margin-top:8px;">▲ 18% vs last year</div>
+      </div>
+      <div class="glass stat-big-card">
+        <div class="stat-big-icon">Goals</div>
+        <div class="stat-big-val" id="sBigGoals" style="color:var(--green)">0</div>
+        <div class="stat-big-label">Goals Completed</div>
+        <div class="stat-card-change up" style="justify-content:center;margin-top:8px;">Out of <span id="totalGoals">0</span> goals</div>
+      </div>
+      <div class="glass stat-big-card">
+        <div class="stat-big-icon"></div>
+        <div class="stat-big-val" style="color:var(--gold)">87</div>
+        <div class="stat-big-label">Financial Health Score</div>
+        <div class="stat-card-change up" style="justify-content:center;margin-top:8px;">▲ 4 pts this month</div>
+      </div>
+    </div>
+
+    <!-- Charts row 1 -->
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Income vs Expenses</div>
+            <div class="chart-subtitle">Monthly comparison</div>
+          </div>
+        </div>
+        <div style="height:260px;"><canvas id="incomeExpChart"></canvas></div>
+      </div>
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Net Worth Growth</div>
+            <div class="chart-subtitle">Cumulative savings trajectory</div>
+          </div>
+        </div>
+        <div style="height:260px;"><canvas id="netWorthChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Charts row 2 -->
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Expense Categories</div>
+            <div class="chart-subtitle">Where your money goes</div>
+          </div>
+        </div>
+        <div style="height:260px;"><canvas id="catChart"></canvas></div>
+      </div>
+      <div class="glass chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Savings Rate</div>
+            <div class="chart-subtitle">% of income saved each month</div>
+          </div>
+        </div>
+        <div style="height:260px;"><canvas id="savRateChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Monthly Breakdown Table -->
+    <div class="glass chart-card" style="margin-bottom:20px;">
+      <div class="chart-header">
+        <div class="chart-title">Monthly Breakdown</div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="breakdownTable">
+          <thead>
+            <tr style="color:var(--text-muted);border-bottom:1px solid var(--border);">
+              <th style="padding:10px 14px;text-align:left;font-weight:600;">Month</th>
+              <th style="padding:10px 14px;text-align:right;font-weight:600;">Income</th>
+              <th style="padding:10px 14px;text-align:right;font-weight:600;">Expenses</th>
+              <th style="padding:10px 14px;text-align:right;font-weight:600;">Saved</th>
+              <th style="padding:10px 14px;text-align:right;font-weight:600;">Rate</th>
+            </tr>
+          </thead>
+          <tbody id="breakdownBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Goal Progress Table -->
+    <div class="glass chart-card">
+      <div class="chart-header">
+        <div class="chart-title">Goals Progress Overview</div>
+        <a href="goals.html" class="btn btn-ghost btn-sm">Manage Goals</a>
+      </div>
+      <div id="statsGoalsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+  </main>
+</div>
+
+<script src="global.js"></script>
+<script src="layout.js"></script>
+<script>
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// Sample data generators
+function genMonthlyData(n) {
+  const now = new Date();
+  const rows = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const income   = 55000 + Math.round((Math.random() - 0.3) * 8000);
+    const expenses = 28000 + Math.round((Math.random() - 0.3) * 7000);
+    const saved    = income - expenses;
+    rows.push({ label: MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear().toString().slice(2), income, expenses, saved, rate: Math.round((saved / income) * 100) });
+  }
+  return rows;
+}
+
+let charts = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderLayout('statistics.html', 'Statistics');
+  initMoneyBackground();
+  initSidebar();
+  updateCharts();
+  renderGoalsStats();
+});
+
+function updateCharts() {
+  const n = +document.getElementById('statPeriod').value;
+  const data = genMonthlyData(n);
+  const labels = data.map(d => d.label);
+
+  // Summary stats
+  const totalSaved = data.reduce((s, d) => s + d.saved, 0);
+  countUp(document.getElementById('sBigSavings'), totalSaved, 1200, '₹');
+
+  const goals = store.get('goals', []);
+  const completed = goals.filter(g => (+g.current / +g.target) >= 1).length;
+  countUp(document.getElementById('sBigGoals'), completed, 800);
+  document.getElementById('totalGoals').textContent = goals.length;
+
+  // Breakdown table
+  document.getElementById('breakdownBody').innerHTML = data.map(d => `
+    <tr style="border-bottom:1px solid var(--border);transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <td style="padding:10px 14px;font-weight:500;">${d.label}</td>
+      <td style="padding:10px 14px;text-align:right;color:var(--green);">₹${d.income.toLocaleString('en-IN')}</td>
+      <td style="padding:10px 14px;text-align:right;color:var(--red);">₹${d.expenses.toLocaleString('en-IN')}</td>
+      <td style="padding:10px 14px;text-align:right;color:var(--gold);font-weight:600;">₹${d.saved.toLocaleString('en-IN')}</td>
+      <td style="padding:10px 14px;text-align:right;">
+        <span class="badge ${d.rate >= 30 ? 'badge-green' : d.rate >= 20 ? 'badge-gold' : 'badge-red'}">${d.rate}%</span>
+      </td>
+    </tr>
+  `).join('');
+
+  destroyCharts();
+
+  // Income vs Expense
+  charts.incExp = new Chart(document.getElementById('incomeExpChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Income',   data: data.map(d => d.income),   backgroundColor: 'rgba(34,217,122,0.5)', borderColor:'#22d97a', borderWidth:1.5, borderRadius:4 },
+        { label: 'Expenses', data: data.map(d => d.expenses), backgroundColor: 'rgba(255,90,90,0.45)', borderColor:'#ff5a5a', borderWidth:1.5, borderRadius:4 },
+      ]
+    },
+    options: chartOptions({ stacked: false })
+  });
+
+  // Net Worth (cumulative)
+  let cum = 42000;
+  const nwData = data.map(d => { cum += d.saved; return cum; });
+  charts.netWorth = new Chart(document.getElementById('netWorthChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Net Worth',
+        data: nwData,
+        fill: true,
+        backgroundColor: ctx => { const g = ctx.chart.ctx.createLinearGradient(0,0,0,260); g.addColorStop(0,'rgba(212,175,55,0.3)'); g.addColorStop(1,'rgba(212,175,55,0)'); return g; },
+        borderColor: '#d4af37', borderWidth: 2.5,
+        pointBackgroundColor: '#d4af37', pointRadius: 3, tension: 0.45,
+      }]
+    },
+    options: chartOptions({ yPrefix: '₹', yDivide: 1000, ySuffix: 'k' })
+  });
+
+  // Category donut
+  charts.cat = new Chart(document.getElementById('catChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Housing','Food','Transport','Shopping','Health','Investment','Other'],
+      datasets: [{
+        data: [12000, 6800, 3200, 4500, 2100, 5000, 2400],
+        backgroundColor: ['#d4af37','#22d97a','#4ea8de','#f0cc5a','#ff8c8c','#a78bfa','#fb923c'],
+        borderColor: '#0d1320', borderWidth: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { position: 'right', labels: { color: '#9aa0b4', font: { size: 11 }, padding: 10, boxWidth: 12 } },
+        tooltip: { backgroundColor:'rgba(13,19,32,0.95)', borderColor:'rgba(212,175,55,0.3)', borderWidth:1,
+          callbacks: { label: ctx => ' ₹' + ctx.parsed.toLocaleString('en-IN') }
+        }
+      }
+    }
+  });
+
+  // Savings Rate line
+  charts.savRate = new Chart(document.getElementById('savRateChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Savings Rate %',
+        data: data.map(d => d.rate),
+        fill: true,
+        backgroundColor: ctx => { const g = ctx.chart.ctx.createLinearGradient(0,0,0,260); g.addColorStop(0,'rgba(34,217,122,0.3)'); g.addColorStop(1,'rgba(34,217,122,0)'); return g; },
+        borderColor: '#22d97a', borderWidth: 2.5,
+        pointBackgroundColor: '#22d97a', pointRadius: 3, tension: 0.4,
+      }]
+    },
+    options: chartOptions({ ySuffix: '%', max: 60 })
+  });
+}
+
+function destroyCharts() {
+  Object.values(charts).forEach(c => c && c.destroy());
+  charts = {};
+}
+
+function chartOptions({ stacked = false, yPrefix = '', yDivide = 1, ySuffix = '', max } = {}) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: '#9aa0b4', font: { size: 11 } } },
+      tooltip: { backgroundColor:'rgba(13,19,32,0.95)', borderColor:'rgba(212,175,55,0.3)', borderWidth:1,
+        titleColor:'#d4af37', bodyColor:'#9aa0b4',
+        callbacks: { label: ctx => ' ' + yPrefix + (yDivide > 1 ? (ctx.parsed.y / yDivide).toFixed(0) + 'k' : ctx.parsed.y) + ySuffix }
+      }
+    },
+    scales: {
+      x: { stacked, grid: { color:'rgba(255,255,255,0.04)' }, ticks: { color:'#9aa0b4', font:{ size:11 }, maxRotation: 40 } },
+      y: { stacked, max, grid: { color:'rgba(255,255,255,0.04)' },
+           ticks: { color:'#9aa0b4', font:{ size:11 },
+             callback: v => yPrefix + (yDivide > 1 ? (v/yDivide).toFixed(0) + 'k' : v) + ySuffix
+           }
+      }
+    }
+  };
+}
+
+function renderGoalsStats() {
+  const goals = store.get('goals', [
+    { id:'1', name:'Emergency Fund', target:200000, current:180000, category:'yearly',  priority:'high' },
+    { id:'2', name:'Goa Vacation',   target:50000,  current:27500,  category:'monthly', priority:'medium' },
+    { id:'3', name:'New Laptop',     target:80000,  current:24000,  category:'monthly', priority:'medium' },
+  ]);
+  const el = document.getElementById('statsGoalsList');
+  el.innerHTML = goals.map(g => {
+    const pct = Math.min(Math.round((+g.current / +g.target) * 100), 100);
+    const fillClass = pct >= 80 ? 'green' : pct >= 40 ? '' : 'red';
+    return `
+      <div style="padding:14px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-weight:600;font-size:14px;">${g.name}</span>
+          <span style="font-family:var(--font-display);font-weight:700;color:var(--gold);">${pct}%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="progress-wrap" style="flex:1;"><div class="progress-fill ${fillClass}" id="sbar-${g.id}" style="width:0%"></div></div>
+          <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">₹${(+g.current).toLocaleString('en-IN')} / ₹${(+g.target).toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  setTimeout(() => {
+    goals.forEach(g => {
+      const pct = Math.min(Math.round((+g.current / +g.target) * 100), 100);
+      const bar = document.getElementById('sbar-' + g.id);
+      if (bar) bar.style.width = pct + '%';
+    });
+  }, 200);
+}
+</script>
+</body>
+</html>

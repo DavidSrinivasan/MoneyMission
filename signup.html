@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up – Money Mission</title>
+  <link rel="stylesheet" href="global.css"/>
+  <link rel="stylesheet" href="auth.css"/>
+</head>
+<body>
+<div id="money-bg"></div>
+<a href="index.html" class="auth-back">&larr; Back to Home</a>
+
+<div class="auth-page">
+  <div class="glass auth-card" style="max-width:460px;">
+    <div class="auth-logo">
+      <div class="logo-icon"></div>
+      <div class="logo-name">Money<span>Mission</span></div>
+    </div>
+    <div class="auth-heading">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-sub">Start your journey to financial freedom today</p>
+    </div>
+
+    <form class="auth-form" id="signupForm" novalidate>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-control" type="text" id="fullName" placeholder="Arjun Sharma" autocomplete="name"/>
+        <span class="field-error" id="nameErr">Please enter your full name.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-control" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+        <span class="field-error" id="emailErr">Please enter a valid email.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <input class="form-control" type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password"/>
+          <button type="button" class="input-icon" id="togglePwd">Show</button>
+        </div>
+        <div class="pwd-strength-wrap" id="strengthWrap" style="display:none">
+          <div class="pwd-strength-bars">
+            <div class="pwd-bar" id="bar1"></div>
+            <div class="pwd-bar" id="bar2"></div>
+            <div class="pwd-bar" id="bar3"></div>
+            <div class="pwd-bar" id="bar4"></div>
+          </div>
+          <span class="pwd-strength-label" id="strengthLabel">Too weak</span>
+        </div>
+        <span class="field-error" id="pwdErr">Password must be at least 8 characters.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-wrap">
+          <input class="form-control" type="password" id="confirmPwd" placeholder="Repeat your password" autocomplete="new-password"/>
+          <button type="button" class="input-icon" id="toggleCnf">Show</button>
+        </div>
+        <span class="field-error" id="cnfErr">Passwords do not match.</span>
+      </div>
+      <label class="remember-wrap" style="font-size:13px;color:var(--text-secondary);">
+        <input type="checkbox" id="agree"/>
+        <div class="custom-check"></div>
+        I agree to the <a href="#" style="color:var(--gold);margin-left:3px;">Terms &amp; Privacy Policy</a>
+      </label>
+      <span class="field-error" id="agreeErr">You must agree to the terms.</span>
+      <button type="submit" class="auth-btn" id="signupBtn">Create My Account</button>
+      <div class="auth-redirect">Already have an account? <a href="login.html">Sign in &rarr;</a></div>
+    </form>
+  </div>
+</div>
+
+<script src="global.js"></script>
+<script>
+  function guardRoute() {}
+
+  document.addEventListener('DOMContentLoaded', function() { initMoneyBackground(); });
+
+  document.getElementById('togglePwd').addEventListener('click', function() {
+    var p = document.getElementById('password');
+    p.type = p.type === 'password' ? 'text' : 'password';
+    this.textContent = p.type === 'text' ? 'Hide' : 'Show';
+  });
+  document.getElementById('toggleCnf').addEventListener('click', function() {
+    var p = document.getElementById('confirmPwd');
+    p.type = p.type === 'password' ? 'text' : 'password';
+    this.textContent = p.type === 'text' ? 'Hide' : 'Show';
+  });
+
+  document.getElementById('password').addEventListener('input', function() {
+    var val = this.value;
+    var wrap = document.getElementById('strengthWrap');
+    if (!val) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    var score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^a-zA-Z0-9]/.test(val)) score++;
+    ['bar1','bar2','bar3','bar4'].forEach(function(id, i) {
+      var cls = ['weak','weak','medium','strong'];
+      document.getElementById(id).className = 'pwd-bar' + (i < score ? ' ' + cls[score - 1] : '');
+    });
+    var labels = ['Too Weak','Weak','Good','Strong'];
+    var colors = ['var(--red)','#f0cc5a','var(--blue)','var(--green)'];
+    document.getElementById('strengthLabel').textContent = labels[score-1] || 'Too Weak';
+    document.getElementById('strengthLabel').style.color = colors[score-1] || 'var(--red)';
+  });
+
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var nameEl  = document.getElementById('fullName');
+    var emailEl = document.getElementById('email');
+    var pwdEl   = document.getElementById('password');
+    var cnfEl   = document.getElementById('confirmPwd');
+    var agreeEl = document.getElementById('agree');
+    var ok = true;
+    function se(id, show) { document.getElementById(id).classList[show?'add':'remove']('show'); }
+    se('nameErr',  nameEl.value.trim().length < 2);  if (nameEl.value.trim().length < 2) ok = false;
+    se('emailErr', emailEl.value.indexOf('@') < 0);   if (emailEl.value.indexOf('@') < 0) ok = false;
+    se('pwdErr',   pwdEl.value.length < 8);            if (pwdEl.value.length < 8) ok = false;
+    se('cnfErr',   pwdEl.value !== cnfEl.value);       if (pwdEl.value !== cnfEl.value) ok = false;
+    se('agreeErr', !agreeEl.checked);                  if (!agreeEl.checked) ok = false;
+    if (!ok) return;
+
+    var btn = document.getElementById('signupBtn');
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
+
+    setTimeout(function() {
+      try {
+        localStorage.setItem('mm_user', JSON.stringify({
+          name: nameEl.value.trim(), email: emailEl.value.trim(), joinedAt: new Date().toISOString()
+        }));
+      } catch(ex) {}
+      var url = window.location.protocol + '//' +
+                window.location.host +
+                window.location.pathname.replace(/\/[^\/]*$/, '/') +
+                'dashboard.html';
+      window.location.replace(url);
+    }, 700);
+  });
+</script>
+</body>
+</html>

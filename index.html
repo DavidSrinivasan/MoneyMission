@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Money Mission – Take Control of Your Money</title>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="stylesheet" href="landing.css" />
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+</head>
+<body>
+
+<!-- Floating Money Background -->
+<div id="money-bg"></div>
+
+<!-- NAVBAR -->
+<nav class="landing-nav" id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">Savings</div>
+    Money<span>Mission</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#benefits">Benefits</a></li>
+    <li><a href="#testimonials">Testimonials</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="login.html" class="btn btn-outline btn-sm">Login</a>
+    <a href="signup.html" class="btn btn-gold btn-sm">Get Started</a>
+  </div>
+  <button class="nav-menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <!-- Floating ambient cards -->
+  <div class="hero-float-cards">
+    <div class="float-card">
+      <div class="float-card-icon">Goals</div>
+      <div class="float-card-label">Goal Progress</div>
+      <div class="float-card-value">82%</div>
+    </div>
+    <div class="float-card">
+      <div class="float-card-icon"></div>
+      <div class="float-card-label">Monthly Savings</div>
+      <div class="float-card-value">₹18,400</div>
+    </div>
+    <div class="float-card">
+      <div class="float-card-icon"></div>
+      <div class="float-card-label">Health Score</div>
+      <div class="float-card-value">94/100</div>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow"> Smart Finance Management</div>
+    <h1 class="hero-title">
+      Take Control of<br><span class="accent">Your Money</span>
+    </h1>
+    <p class="hero-sub">
+      Track, plan, save and achieve your financial goals — all in one beautifully designed platform built for ambitious savers.
+    </p>
+    <div class="hero-actions">
+      <a href="signup.html" class="btn btn-gold"> Get Started Free</a>
+      <a href="login.html"  class="btn btn-outline">Login to Dashboard</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val" data-count="50000">0</div>
+        <div class="hero-stat-label">Active Users</div>
+      </div>
+      <div>
+        <div class="hero-stat-val" data-count="200" data-prefix="₹" data-suffix="Cr+">₹0</div>
+        <div class="hero-stat-label">Savings Tracked</div>
+      </div>
+      <div>
+        <div class="hero-stat-val" data-count="98" data-suffix="%">0%</div>
+        <div class="hero-stat-label">User Satisfaction</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="landing-section alt" id="features">
+  <div class="section-center reveal">
+    <div class="section-tag"> Features</div>
+    <h2 class="section-title">Everything You Need to<br><span>Master Your Finances</span></h2>
+    <p class="section-sub">From daily tracking to long-term planning — we've got all the tools to help you succeed financially.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">Daily</div>
+      <div class="feature-title">Daily Planning</div>
+      <div class="feature-desc">Track your daily expenses and income. Set micro-goals that build up to big financial wins over time.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">Weekly</div>
+      <div class="feature-title">Weekly Planning</div>
+      <div class="feature-desc">Review your weekly spending patterns and adjust your budget to stay on the right track every single week.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">Monthly</div>
+      <div class="feature-title">Monthly Planning</div>
+      <div class="feature-desc">Get a bird's-eye view of your monthly finances with smart category breakdowns and trend analysis.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">Yearly</div>
+      <div class="feature-title">Yearly Planning</div>
+      <div class="feature-desc">Plan your entire financial year ahead. Set annual savings targets and watch your progress unfold.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">Goals</div>
+      <div class="feature-title">Goal Tracking</div>
+      <div class="feature-desc">Create specific financial goals with deadlines, track your progress visually and celebrate milestones.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon"></div>
+      <div class="feature-title">Expense Tracking</div>
+      <div class="feature-desc">Log every rupee with ease. Categorize spending and identify where your money actually goes.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon"></div>
+      <div class="feature-title">Financial Insights</div>
+      <div class="feature-desc">AI-powered insights that analyze your habits and surface personalized recommendations to save more.</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon">Reminders</div>
+      <div class="feature-title">Smart Reminders</div>
+      <div class="feature-desc">Never miss a bill, SIP or saving milestone. Set smart reminders that keep your finances on auto-pilot.</div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="landing-section" id="benefits">
+  <div class="benefits-grid">
+    <div class="benefit-visual reveal">
+      <div class="glass benefit-main-card">
+        <div class="flex items-center gap-12" style="margin-bottom:6px;">
+          <span style="font-size:22px;">Stats</span>
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;">Savings Overview</div>
+            <div style="font-size:12px;color:var(--text-muted);">Last 6 months</div>
+          </div>
+        </div>
+        <div class="benefit-chart-bar-wrap">
+          <div class="benefit-bar-row">
+            <span class="benefit-bar-label">Jan</span>
+            <div class="benefit-bar-track"><div class="benefit-bar-fill" style="width:55%;--delay:0.1s"></div></div>
+            <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right">₹8.2k</span>
+          </div>
+          <div class="benefit-bar-row">
+            <span class="benefit-bar-label">Feb</span>
+            <div class="benefit-bar-track"><div class="benefit-bar-fill" style="width:68%;--delay:0.2s"></div></div>
+            <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right">₹10.5k</span>
+          </div>
+          <div class="benefit-bar-row">
+            <span class="benefit-bar-label">Mar</span>
+            <div class="benefit-bar-track"><div class="benefit-bar-fill" style="width:45%;--delay:0.3s"></div></div>
+            <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right">₹7.1k</span>
+          </div>
+          <div class="benefit-bar-row">
+            <span class="benefit-bar-label">Apr</span>
+            <div class="benefit-bar-track"><div class="benefit-bar-fill" style="width:82%;--delay:0.4s"></div></div>
+            <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right">₹12.8k</span>
+          </div>
+          <div class="benefit-bar-row">
+            <span class="benefit-bar-label">May</span>
+            <div class="benefit-bar-track"><div class="benefit-bar-fill" style="width:74%;--delay:0.5s"></div></div>
+            <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right">₹11.4k</span>
+          </div>
+          <div class="benefit-bar-row">
+            <span class="benefit-bar-label">Jun</span>
+            <div class="benefit-bar-track"><div class="benefit-bar-fill" style="width:91%;--delay:0.6s"></div></div>
+            <span style="font-size:12px;color:var(--text-secondary);width:40px;text-align:right">₹14.2k</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="benefit-list reveal">
+      <div class="section-tag"> Benefits</div>
+      <h2 class="section-title">Why Choose <span>Money Mission?</span></h2>
+      <p class="section-sub" style="margin-bottom:28px">We're not just another finance app. We're your financial growth partner.</p>
+      <div class="benefit-item">
+        <div class="benefit-item-icon"></div>
+        <div>
+          <div class="benefit-item-title">Bank-Level Security</div>
+          <div class="benefit-item-desc">Your financial data is protected with end-to-end encryption and zero data sharing.</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-item-icon"></div>
+        <div>
+          <div class="benefit-item-title">Works Everywhere</div>
+          <div class="benefit-item-desc">Seamlessly syncs across all your devices — mobile, tablet or desktop.</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-item-icon"></div>
+        <div>
+          <div class="benefit-item-title">Smart Insights</div>
+          <div class="benefit-item-desc">Get personalized tips and alerts that help you make smarter money decisions every day.</div>
+        </div>
+      </div>
+      <div class="benefit-item">
+        <div class="benefit-item-icon"></div>
+        <div>
+          <div class="benefit-item-title">Free to Start</div>
+          <div class="benefit-item-desc">Jump in with zero cost. All core features are free — no credit card required.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="landing-section alt" id="testimonials">
+  <div class="section-center reveal">
+    <div class="section-tag"> Testimonials</div>
+    <h2 class="section-title">What Our <span>Users Say</span></h2>
+    <p class="section-sub">Join thousands of Indians who've transformed their financial lives with Money Mission.</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="glass testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Money Mission completely changed how I manage my salary. I saved ₹2 lakhs in just 8 months thanks to the goal tracking feature!"</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:linear-gradient(135deg,#d4af37,#b8972a)">P</div>
+        <div>
+          <div class="testimonial-name">Priya Sharma</div>
+          <div class="testimonial-role">Software Engineer, Bengaluru</div>
+        </div>
+      </div>
+    </div>
+    <div class="glass testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"The reminders feature is a game-changer. I never miss an EMI or SIP anymore. The financial health score keeps me motivated daily."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:linear-gradient(135deg,#22d97a,#0fb359)">R</div>
+        <div>
+          <div class="testimonial-name">Rahul Mehta</div>
+          <div class="testimonial-role">Business Analyst, Mumbai</div>
+        </div>
+      </div>
+    </div>
+    <div class="glass testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Finally an app that understands Indian finances. The rupee-first approach and simple UI makes budgeting feel effortless and actually fun."</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" style="background:linear-gradient(135deg,#4ea8de,#2d7ab5)">A</div>
+        <div>
+          <div class="testimonial-name">Anita Verma</div>
+          <div class="testimonial-role">Freelance Designer, Delhi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="glass cta-inner reveal">
+    <div style="font-size:48px;margin-bottom:16px;"></div>
+    <h2 class="cta-title">Start Your <span style="color:var(--gold)">Money Mission</span> Today</h2>
+    <p class="cta-sub">Join 50,000+ users who are already building their financial future. It's free to start.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="signup.html" class="btn btn-gold">Create Free Account</a>
+      <a href="login.html"  class="btn btn-outline">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="landing-footer">
+  <div class="flex items-center gap-12">
+    <div class="nav-logo">
+      <div class="logo-icon" style="width:28px;height:28px;font-size:14px;border-radius:7px;">Savings</div>
+      Money<span>Mission</span>
+    </div>
+    <span class="footer-copy">© 2025 Money Mission. All rights reserved.</span>
+  </div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Help</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="global.js"></script>
+<script>
+  // Navbar scroll effect
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Hero stat count-ups (trigger on viewport)
+  const statEls = document.querySelectorAll('.hero-stat-val[data-count]');
+  let counted = false;
+  const heroObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !counted) {
+      counted = true;
+      statEls.forEach(el => {
+        const target = +el.dataset.count;
+        const prefix = el.dataset.prefix || '';
+        const suffix = el.dataset.suffix || '';
+        countUp(el, target, 1600, prefix, suffix);
+      });
+    }
+  }, { threshold: 0.5 });
+  const heroStats = document.querySelector('.hero-stats');
+  if (heroStats) heroObs.observe(heroStats);
+</script>
+</body>
+</html>
